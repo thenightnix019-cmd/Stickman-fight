@@ -1,6 +1,8 @@
 import { PlayerWallet } from '../types/shop';
+import { PlayerId, PlayerConfig } from '../types/game';
 
 const WALLET_KEY = 'stick_arena_player_wallet_v1';
+const PLAYERS_GEAR_KEY = 'stick_arena_players_gear_v1';
 
 export const DEFAULT_WALLET: PlayerWallet = {
   coins: 200, // starting balance for testing
@@ -8,9 +10,11 @@ export const DEFAULT_WALLET: PlayerWallet = {
   purchasedHats: [],
   purchasedSkins: [],
   purchasedShoes: [],
+  purchasedWeaponSkins: [],
   equippedHat: null,
   equippedSkin: null,
   equippedShoes: null,
+  equippedWeaponSkin: null,
   redeemedCodes: [],
 };
 
@@ -25,9 +29,11 @@ export function loadWallet(): PlayerWallet {
       purchasedHats: Array.isArray(parsed.purchasedHats) ? parsed.purchasedHats : [],
       purchasedSkins: Array.isArray(parsed.purchasedSkins) ? parsed.purchasedSkins : [],
       purchasedShoes: Array.isArray(parsed.purchasedShoes) ? parsed.purchasedShoes : [],
+      purchasedWeaponSkins: Array.isArray(parsed.purchasedWeaponSkins) ? parsed.purchasedWeaponSkins : [],
       equippedHat: parsed.equippedHat || null,
       equippedSkin: parsed.equippedSkin || null,
       equippedShoes: parsed.equippedShoes || null,
+      equippedWeaponSkin: parsed.equippedWeaponSkin || null,
       redeemedCodes: Array.isArray(parsed.redeemedCodes) ? parsed.redeemedCodes : [],
     };
   } catch (err) {
@@ -41,6 +47,36 @@ export function saveWallet(wallet: PlayerWallet) {
     localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
   } catch (err) {
     console.error('Failed to save wallet', err);
+  }
+}
+
+export interface PlayerSavedGear {
+  equippedHat?: string | null;
+  equippedSkin?: string | null;
+  equippedShoes?: string | null;
+  equippedWeaponSkin?: string | null;
+}
+
+export function loadPlayersGear(): Record<PlayerId, PlayerSavedGear> {
+  try {
+    const raw = localStorage.getItem(PLAYERS_GEAR_KEY);
+    if (!raw) return {} as Record<PlayerId, PlayerSavedGear>;
+    return JSON.parse(raw);
+  } catch (e) {
+    return {} as Record<PlayerId, PlayerSavedGear>;
+  }
+}
+
+export function savePlayerGear(playerId: PlayerId, gear: PlayerSavedGear) {
+  try {
+    const all = loadPlayersGear();
+    all[playerId] = {
+      ...all[playerId],
+      ...gear,
+    };
+    localStorage.setItem(PLAYERS_GEAR_KEY, JSON.stringify(all));
+  } catch (e) {
+    console.error('Failed to save player gear', e);
   }
 }
 

@@ -60,8 +60,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Active Map
-  const map: ArenaMap = MAPS.find((m) => m.id === settings.selectedMap) || MAPS[0];
+  // Active Map (Apex Warzone is strictly exclusive to Battle Royale mode)
+  const rawMap = MAPS.find((m) => m.id === settings.selectedMap) || MAPS[0];
+  const map: ArenaMap =
+    settings.mode !== 'battle_royale' && rawMap.id === 'grand_battle_royale'
+      ? MAPS.find((m) => m.id !== 'grand_battle_royale') || MAPS[1]
+      : rawMap;
 
   // Keep playerConfigs reference up to date without re-triggering round resets
   const playerConfigsRef = useRef<PlayerConfig[]>(playerConfigs);
@@ -202,61 +206,99 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Initial Weapon Spawns: STRICTLY DISABLED in Infection Mode!
     if (settings.mode !== 'infection') {
-      const initialDrops: WeaponPickup[] = [
-        {
-          id: Math.random().toString(),
-          type: 'sword',
-          x: map.width * 0.28,
-          y: map.height * 0.45,
-          vx: 0,
-          vy: 0,
-          ammo: 14,
-          grounded: false,
-        },
-        {
-          id: Math.random().toString(),
-          type: 'gun',
-          x: map.width * 0.72,
-          y: map.height * 0.45,
-          vx: 0,
-          vy: 0,
-          ammo: 12,
-          grounded: false,
-        },
-        {
-          id: Math.random().toString(),
-          type: 'rocket',
-          x: map.width * 0.5,
-          y: map.height * 0.3,
-          vx: 0,
-          vy: 0,
-          ammo: 4,
-          grounded: false,
-        },
-      ];
+      let initialDrops: WeaponPickup[] = [];
 
-      // Add Axe in Battle Royale!
-      if (settings.mode === 'battle_royale') {
-        initialDrops.push({
-          id: Math.random().toString(),
-          type: 'axe',
-          x: map.width * 0.5,
-          y: map.height * 0.6,
-          vx: 0,
-          vy: 0,
-          ammo: 14,
-          grounded: false,
-        });
-        initialDrops.push({
-          id: Math.random().toString(),
-          type: 'axe',
-          x: map.width * 0.15,
-          y: map.height * 0.5,
-          vx: 0,
-          vy: 0,
-          ammo: 14,
-          grounded: false,
-        });
+      if (settings.mode === 'the_hero') {
+        // In The Hero mode: ONLY AXES allowed and visible on the ground!
+        initialDrops = [
+          {
+            id: Math.random().toString(),
+            type: 'axe',
+            x: map.width * 0.28,
+            y: map.height * 0.45,
+            vx: 0,
+            vy: 0,
+            ammo: 999,
+            grounded: false,
+          },
+          {
+            id: Math.random().toString(),
+            type: 'axe',
+            x: map.width * 0.72,
+            y: map.height * 0.45,
+            vx: 0,
+            vy: 0,
+            ammo: 999,
+            grounded: false,
+          },
+          {
+            id: Math.random().toString(),
+            type: 'axe',
+            x: map.width * 0.5,
+            y: map.height * 0.32,
+            vx: 0,
+            vy: 0,
+            ammo: 999,
+            grounded: false,
+          },
+        ];
+      } else {
+        initialDrops = [
+          {
+            id: Math.random().toString(),
+            type: 'sword',
+            x: map.width * 0.28,
+            y: map.height * 0.45,
+            vx: 0,
+            vy: 0,
+            ammo: 14,
+            grounded: false,
+          },
+          {
+            id: Math.random().toString(),
+            type: 'gun',
+            x: map.width * 0.72,
+            y: map.height * 0.45,
+            vx: 0,
+            vy: 0,
+            ammo: 12,
+            grounded: false,
+          },
+          {
+            id: Math.random().toString(),
+            type: 'rocket',
+            x: map.width * 0.5,
+            y: map.height * 0.3,
+            vx: 0,
+            vy: 0,
+            ammo: 4,
+            grounded: false,
+          },
+        ];
+
+        // Add Axe in Battle Royale!
+        if (settings.mode === 'battle_royale') {
+          initialDrops.push({
+            id: Math.random().toString(),
+            type: 'axe',
+            x: map.width * 0.5,
+            y: map.height * 0.6,
+            vx: 0,
+            vy: 0,
+            ammo: 14,
+            grounded: false,
+          });
+          initialDrops.push({
+            id: Math.random().toString(),
+            type: 'axe',
+            x: map.width * 0.15,
+            y: map.height * 0.5,
+            vx: 0,
+            vy: 0,
+            ammo: 14,
+            grounded: false,
+          });
+        }
       }
 
       weaponPickupsRef.current = initialDrops;

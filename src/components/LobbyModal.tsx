@@ -786,7 +786,10 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({
                   Arena Map (الحلبة)
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {MAPS.map((m) => (
+                  {(settings.mode === 'battle_royale'
+                    ? MAPS
+                    : MAPS.filter((m) => m.id !== 'grand_battle_royale')
+                  ).map((m) => (
                     <button
                       key={m.id}
                       onClick={() => onUpdateSettings({ selectedMap: m.id })}
@@ -796,7 +799,14 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({
                           : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
                       }`}
                     >
-                      <div className="text-xs font-bold">{m.name}</div>
+                      <div className="text-xs font-bold flex items-center justify-between">
+                        <span>{m.name}</span>
+                        {m.id === 'grand_battle_royale' && (
+                          <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-mono">
+                            حصري BR
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[10px] text-slate-500 mt-0.5 font-mono">{m.width}x{m.height}</div>
                     </button>
                   ))}

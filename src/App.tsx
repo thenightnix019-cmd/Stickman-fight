@@ -23,7 +23,7 @@ import { ShopModal } from './components/ShopModal';
 import { RedeemCodeModal } from './components/RedeemCodeModal';
 import { sounds } from './audio/soundEngine';
 import { loadSavedKeyBindings, saveKeyBindings } from './engine/keybindings';
-import { loadWallet, awardRoundRewards } from './services/shopStorage';
+import { loadWallet, awardRoundRewards, loadPlayersGear, savePlayerGear } from './services/shopStorage';
 import { PlayerWallet } from './types/shop';
 
 type GameState = 'MAIN_MENU' | 'LOBBY' | 'PLAYING' | 'ROUND_SUMMARY' | 'MATCH_OVER';
@@ -127,16 +127,26 @@ export default function App() {
 
   const [playerConfigs, setPlayerConfigs] = useState<PlayerConfig[]>(() => {
     const initialWallet = loadWallet();
-    return DEFAULT_PLAYERS.map((p, idx) =>
-      idx === 0
-        ? {
-            ...p,
-            equippedHat: initialWallet.equippedHat,
-            equippedSkin: initialWallet.equippedSkin,
-            equippedShoes: initialWallet.equippedShoes,
-          }
-        : p
-    );
+    const savedGear = loadPlayersGear();
+    return DEFAULT_PLAYERS.map((p, idx) => {
+      const gear = savedGear[p.id] || {};
+      if (idx === 0) {
+        return {
+          ...p,
+          equippedHat: gear.equippedHat !== undefined ? gear.equippedHat : initialWallet.equippedHat,
+          equippedSkin: gear.equippedSkin !== undefined ? gear.equippedSkin : initialWallet.equippedSkin,
+          equippedShoes: gear.equippedShoes !== undefined ? gear.equippedShoes : initialWallet.equippedShoes,
+          equippedWeaponSkin: gear.equippedWeaponSkin !== undefined ? gear.equippedWeaponSkin : initialWallet.equippedWeaponSkin,
+        };
+      }
+      return {
+        ...p,
+        equippedHat: gear.equippedHat || null,
+        equippedSkin: gear.equippedSkin || null,
+        equippedShoes: gear.equippedShoes || null,
+        equippedWeaponSkin: gear.equippedWeaponSkin || null,
+      };
+    });
   });
   const [keyBindings, setKeyBindings] = useState<PlayerKeyBindingsMap>(loadSavedKeyBindings);
   const [settings, setSettings] = useState<GameSettings>({
@@ -176,13 +186,17 @@ export default function App() {
     setPlayerConfigs((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
     );
+    savePlayerGear(id, updates);
   };
 
   const handleUpdateSettings = (updates: Partial<GameSettings>) => {
     setSettings((prev) => {
       const next = { ...prev, ...updates };
-      if (updates.mode === 'battle_royale' && prev.mode !== 'battle_royale') {
+      // Apex Warzone is exclusively for Battle Royale mode
+      if (next.mode === 'battle_royale') {
         next.selectedMap = 'grand_battle_royale';
+      } else if (next.selectedMap === 'grand_battle_royale') {
+        next.selectedMap = 'foundry';
       }
       return next;
     });

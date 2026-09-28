@@ -57,6 +57,7 @@ export interface PlayerConfig {
   equippedHat?: string | null;
   equippedSkin?: string | null;
   equippedShoes?: string | null;
+  equippedWeaponSkin?: string | null;
 }
 
 export interface PlayerState {

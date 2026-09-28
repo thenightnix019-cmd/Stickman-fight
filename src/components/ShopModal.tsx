@@ -3,10 +3,12 @@ import {
   ShopHat,
   ShopSkin,
   ShopShoes,
+  ShopWeaponSkin,
   PlayerWallet,
   HATS,
   SKINS,
   SHOES,
+  WEAPON_SKINS,
 } from '../types/shop';
 import { PlayerConfig, PlayerId } from '../types/game';
 import { saveWallet, claimYoutubeRecharge } from '../services/shopStorage';
@@ -23,6 +25,8 @@ import {
   Info,
   Gift,
   ExternalLink,
+  Swords,
+  Sparkles,
 } from 'lucide-react';
 import { StickmanGift, StickmanRuler } from './StickmanIcons';
 
@@ -654,6 +658,100 @@ const ShoesGraphic: React.FC = () => {
   );
 };
 
+const WeaponSkinGraphic: React.FC<{ skin: ShopWeaponSkin }> = ({ skin }) => {
+  const isRainbow = skin.glowColor === 'rainbow' || skin.effect === 'rainbow';
+  return (
+    <div className="relative flex items-center justify-center p-2">
+      {/* Radiant Glowing Halo */}
+      <div
+        className="absolute inset-0 rounded-full blur-xl opacity-45 animate-pulse"
+        style={{
+          backgroundColor: isRainbow ? '#a855f7' : skin.glowColor,
+        }}
+      />
+      <svg width="84" height="60" viewBox="0 0 100 70" fill="none" className="relative z-10 drop-shadow-md">
+        {skin.weaponType === 'axe' ? (
+          <>
+            {/* Axe Haft */}
+            <line x1="20" y1="58" x2="68" y2="16" stroke={skin.primaryColor} strokeWidth="5.5" strokeLinecap="round" />
+            <line x1="20" y1="58" x2="68" y2="16" stroke="#ffffff" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+            {/* Axe Collar */}
+            <rect x="52" y="24" width="7" height="12" rx="2" fill={skin.secondaryColor} stroke={skin.glowColor} strokeWidth="1.2" transform="rotate(-40 52 24)" />
+            {/* Crescent Blade */}
+            <path
+              d="M 56 12 Q 86 6 82 32 Q 68 36 60 22 Z"
+              fill={skin.bladeColor || skin.glowColor}
+              stroke={skin.glowColor}
+              strokeWidth="2.5"
+            />
+            {/* Blade Energy Core */}
+            <circle cx="70" cy="22" r="3.5" fill="#ffffff" stroke={skin.secondaryColor} strokeWidth="1" />
+          </>
+        ) : skin.weaponType === 'sword' ? (
+          <>
+            {/* Hilt */}
+            <line x1="16" y1="54" x2="32" y2="42" stroke={skin.primaryColor} strokeWidth="5" strokeLinecap="round" />
+            {/* Crossguard */}
+            <line x1="25" y1="36" x2="39" y2="52" stroke={skin.secondaryColor} strokeWidth="4" strokeLinecap="round" />
+            {/* Radiant Blade */}
+            <line x1="30" y1="44" x2="84" y2="14" stroke={skin.bladeColor || skin.glowColor} strokeWidth="5" strokeLinecap="round" />
+            <line x1="33" y1="42" x2="80" y2="16" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+            {/* Star sparkle at tip */}
+            <circle cx="84" cy="14" r="2.5" fill="#ffffff" className="animate-ping" />
+          </>
+        ) : skin.weaponType === 'gun' ? (
+          <>
+            {/* Blaster Handle */}
+            <path d="M 28 48 L 36 34 L 46 34 L 38 48 Z" fill={skin.secondaryColor} stroke={skin.primaryColor} strokeWidth="1.5" />
+            {/* Blaster Receiver & Barrel */}
+            <rect x="30" y="22" width="46" height="15" rx="3" fill={skin.primaryColor} stroke={skin.secondaryColor} strokeWidth="2" />
+            <rect x="42" y="25" width="20" height="9" rx="2" fill={skin.secondaryColor} />
+            {/* Glowing Laser Muzzle & Beam */}
+            <rect x="74" y="25" width="8" height="9" rx="1.5" fill={skin.bladeColor || skin.glowColor} />
+            <line x1="84" y1="29.5" x2="94" y2="29.5" stroke={skin.glowColor} strokeWidth="3" strokeLinecap="round" />
+          </>
+        ) : skin.weaponType === 'rocket' ? (
+          <>
+            {/* Heavy Launcher Tube */}
+            <rect x="18" y="24" width="58" height="18" rx="4" fill={skin.primaryColor} stroke={skin.secondaryColor} strokeWidth="2.5" />
+            <line x1="28" y1="24" x2="28" y2="42" stroke={skin.glowColor} strokeWidth="2" />
+            <line x1="60" y1="24" x2="60" y2="42" stroke={skin.glowColor} strokeWidth="2" />
+            {/* Warhead */}
+            <polygon points="76,22 92,33 76,44" fill={skin.secondaryColor} stroke={skin.glowColor} strokeWidth="1.5" />
+            <circle cx="82" cy="33" r="3" fill="#ffffff" />
+          </>
+        ) : skin.weaponType === 'rope' ? (
+          <>
+            {/* Coiled Spool */}
+            <circle cx="35" cy="35" r="14" fill={skin.primaryColor} stroke={skin.secondaryColor} strokeWidth="3" />
+            <circle cx="35" cy="35" r="7" fill={skin.glowColor} />
+            {/* Luminous Line & Hook */}
+            <path d="M 46 30 Q 64 25 72 38" stroke={skin.secondaryColor} strokeWidth="2.5" strokeDasharray="3 2" fill="none" />
+            <path d="M 72 38 L 84 28 L 86 36 L 76 44 Z" fill={skin.bladeColor || skin.glowColor} stroke="#ffffff" strokeWidth="1.5" />
+          </>
+        ) : skin.weaponType === 'magnet' ? (
+          <>
+            {/* Horseshoe Magnet Core */}
+            <path d="M 28 20 C 28 46 72 46 72 20" stroke={skin.primaryColor} strokeWidth="8" strokeLinecap="round" fill="none" />
+            <rect x="23" y="16" width="10" height="8" rx="2" fill={skin.secondaryColor} stroke={skin.glowColor} strokeWidth="1.5" />
+            <rect x="67" y="16" width="10" height="8" rx="2" fill={skin.glowColor} stroke="#ffffff" strokeWidth="1.5" />
+            {/* Pulse Wave */}
+            <path d="M 36 14 Q 50 8 64 14" stroke={skin.glowColor} strokeWidth="2" strokeDasharray="2 2" fill="none" />
+          </>
+        ) : (
+          <>
+            {/* Supreme God Weapon: Rainbow Infinity Cross */}
+            <path d="M 32 35 C 32 24 45 24 50 35 C 55 46 68 46 68 35 C 68 24 55 24 50 35 C 45 46 32 46 32 35 Z" stroke="url(#rainbowGrad)" strokeWidth="4.5" fill="none" />
+            <circle cx="50" cy="35" r="4.5" fill="#ffffff" className="animate-ping" />
+            <line x1="20" y1="20" x2="80" y2="50" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round" />
+            <line x1="20" y1="50" x2="80" y2="20" stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+};
+
 /* ========================================================================= */
 /* MAIN SHOP MODAL COMPONENT                                                 */
 /* ========================================================================= */
@@ -666,8 +764,10 @@ export const ShopModal: React.FC<ShopModalProps> = ({
   playerConfigs,
   onUpdatePlayerConfig,
 }) => {
-  const [activeTab, setActiveTab] = useState<'hats' | 'skins' | 'shoes'>('hats');
+  const [activeTab, setActiveTab] = useState<'hats' | 'skins' | 'shoes' | 'weapons'>('hats');
+  const [selectedPlayerId, setSelectedPlayerId] = useState<PlayerId>(1);
   const [showHeightCompare, setShowHeightCompare] = useState<boolean>(false);
+  const [weaponFilter, setWeaponFilter] = useState<string>('all');
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(
     null
   );
@@ -679,7 +779,7 @@ export const ShopModal: React.FC<ShopModalProps> = ({
     setTimeout(() => setFeedbackMsg(null), 3200);
   };
 
-  const humanPlayer = playerConfigs.find((p) => p.type === 'human') || playerConfigs[0];
+  const targetPlayer = playerConfigs.find((p) => p.id === selectedPlayerId) || playerConfigs[0];
 
   const handleClaimFreeYoutubeRecharge = () => {
     // Open YouTube channel in new tab safely
@@ -703,13 +803,13 @@ export const ShopModal: React.FC<ShopModalProps> = ({
         ...wallet,
         coins: wallet.coins - hat.price,
         purchasedHats: [...wallet.purchasedHats, hat.id],
-        equippedHat: hat.id,
+        equippedHat: targetPlayer.id === 1 ? hat.id : wallet.equippedHat,
       };
       onUpdateWallet(updated);
       saveWallet(updated);
-      onUpdatePlayerConfig(humanPlayer.id, { equippedHat: hat.id });
+      onUpdatePlayerConfig(targetPlayer.id, { equippedHat: hat.id });
       sounds.playPowerUp();
-      showFeedback(`تم شراء وارتداء ${hat.nameAr} بنجاح!`, 'success');
+      showFeedback(`تم شراء ${hat.nameAr} وتجهيزها لـ ${targetPlayer.name}!`, 'success');
     } else {
       if (wallet.gems < hat.price) {
         showFeedback('عذراً! لا تملك ما يكفي من الجواهر.', 'error');
@@ -719,25 +819,26 @@ export const ShopModal: React.FC<ShopModalProps> = ({
         ...wallet,
         gems: wallet.gems - hat.price,
         purchasedHats: [...wallet.purchasedHats, hat.id],
-        equippedHat: hat.id,
+        equippedHat: targetPlayer.id === 1 ? hat.id : wallet.equippedHat,
       };
       onUpdateWallet(updated);
       saveWallet(updated);
-      onUpdatePlayerConfig(humanPlayer.id, { equippedHat: hat.id });
+      onUpdatePlayerConfig(targetPlayer.id, { equippedHat: hat.id });
       sounds.playPowerUp();
-      showFeedback('تم شراء وارتداء التاج الأسطوري المتوهج!', 'success');
+      showFeedback(`تم شراء التاج الأسطوري وتجهيزه لـ ${targetPlayer.name}!`, 'success');
     }
   };
 
   const handleEquipHat = (hatId: string | null) => {
     const updated: PlayerWallet = {
       ...wallet,
-      equippedHat: hatId,
+      equippedHat: targetPlayer.id === 1 ? hatId : wallet.equippedHat,
     };
     onUpdateWallet(updated);
     saveWallet(updated);
-    onUpdatePlayerConfig(humanPlayer.id, { equippedHat: hatId });
+    onUpdatePlayerConfig(targetPlayer.id, { equippedHat: hatId });
     sounds.playButton();
+    showFeedback(hatId ? `تم ارتداء القبعة لـ ${targetPlayer.name}` : `تم خلع القبعة من ${targetPlayer.name}`, 'success');
   };
 
   const handleBuySkin = (skin: ShopSkin) => {
@@ -749,24 +850,25 @@ export const ShopModal: React.FC<ShopModalProps> = ({
       ...wallet,
       gems: wallet.gems - skin.price,
       purchasedSkins: [...wallet.purchasedSkins, skin.id],
-      equippedSkin: skin.id,
+      equippedSkin: targetPlayer.id === 1 ? skin.id : wallet.equippedSkin,
     };
     onUpdateWallet(updated);
     saveWallet(updated);
-    onUpdatePlayerConfig(humanPlayer.id, { equippedSkin: skin.id });
+    onUpdatePlayerConfig(targetPlayer.id, { equippedSkin: skin.id });
     sounds.playPowerUp();
-    showFeedback(`تم شراء وارتداء سكين ${skin.nameAr} بنجاح!`, 'success');
+    showFeedback(`تم شراء سكين ${skin.nameAr} وتجهيزه لـ ${targetPlayer.name}!`, 'success');
   };
 
   const handleEquipSkin = (skinId: string | null) => {
     const updated: PlayerWallet = {
       ...wallet,
-      equippedSkin: skinId,
+      equippedSkin: targetPlayer.id === 1 ? skinId : wallet.equippedSkin,
     };
     onUpdateWallet(updated);
     saveWallet(updated);
-    onUpdatePlayerConfig(humanPlayer.id, { equippedSkin: skinId });
+    onUpdatePlayerConfig(targetPlayer.id, { equippedSkin: skinId });
     sounds.playButton();
+    showFeedback(skinId ? `تم تجهيز السكين لـ ${targetPlayer.name}` : `تم خلع السكين من ${targetPlayer.name}`, 'success');
   };
 
   const handleBuyShoes = (shoe: ShopShoes) => {
@@ -778,24 +880,55 @@ export const ShopModal: React.FC<ShopModalProps> = ({
       ...wallet,
       gems: wallet.gems - shoe.price,
       purchasedShoes: [...wallet.purchasedShoes, shoe.id],
-      equippedShoes: shoe.id,
+      equippedShoes: targetPlayer.id === 1 ? shoe.id : wallet.equippedShoes,
     };
     onUpdateWallet(updated);
     saveWallet(updated);
-    onUpdatePlayerConfig(humanPlayer.id, { equippedShoes: shoe.id });
+    onUpdatePlayerConfig(targetPlayer.id, { equippedShoes: shoe.id });
     sounds.playPowerUp();
-    showFeedback('مبروك! حصلت على حذاء الأطياف المتوهج الأسطوري!', 'success');
+    showFeedback(`مبروك! تم شراء حذاء الأطياف وتجهيزه لـ ${targetPlayer.name}!`, 'success');
   };
 
   const handleEquipShoes = (shoeId: string | null) => {
     const updated: PlayerWallet = {
       ...wallet,
-      equippedShoes: shoeId,
+      equippedShoes: targetPlayer.id === 1 ? shoeId : wallet.equippedShoes,
     };
     onUpdateWallet(updated);
     saveWallet(updated);
-    onUpdatePlayerConfig(humanPlayer.id, { equippedShoes: shoeId });
+    onUpdatePlayerConfig(targetPlayer.id, { equippedShoes: shoeId });
     sounds.playButton();
+    showFeedback(shoeId ? `تم ارتداء الحذاء لـ ${targetPlayer.name}` : `تم خلع الحذاء من ${targetPlayer.name}`, 'success');
+  };
+
+  const handleBuyWeaponSkin = (skin: ShopWeaponSkin) => {
+    if (wallet.gems < skin.price) {
+      showFeedback(`عذراً! يتطلب هذا السلاح ${skin.price} جوهرة. رصيدك الحالي: ${wallet.gems} جوهرة.`, 'error');
+      return;
+    }
+    const updated: PlayerWallet = {
+      ...wallet,
+      gems: wallet.gems - skin.price,
+      purchasedWeaponSkins: [...(wallet.purchasedWeaponSkins || []), skin.id],
+      equippedWeaponSkin: targetPlayer.id === 1 ? skin.id : wallet.equippedWeaponSkin,
+    };
+    onUpdateWallet(updated);
+    saveWallet(updated);
+    onUpdatePlayerConfig(targetPlayer.id, { equippedWeaponSkin: skin.id });
+    sounds.playPowerUp();
+    showFeedback(`مبروك! تم شراء ${skin.nameAr} وتجهيزه لـ ${targetPlayer.name}!`, 'success');
+  };
+
+  const handleEquipWeaponSkin = (skinId: string | null) => {
+    const updated: PlayerWallet = {
+      ...wallet,
+      equippedWeaponSkin: targetPlayer.id === 1 ? skinId : wallet.equippedWeaponSkin,
+    };
+    onUpdateWallet(updated);
+    saveWallet(updated);
+    onUpdatePlayerConfig(targetPlayer.id, { equippedWeaponSkin: skinId });
+    sounds.playButton();
+    showFeedback(skinId ? `تم تجهيز سلاح النيون لـ ${targetPlayer.name}` : `تم خلع سكين السلاح من ${targetPlayer.name}`, 'success');
   };
 
   return (
@@ -911,50 +1044,114 @@ export const ShopModal: React.FC<ShopModalProps> = ({
         </div>
 
         {/* ============================================================== */}
-        {/* TABS SELECTOR (HATS, FULL SKINS, SHOES)                        */}
+        {/* PLAYER SELECTOR BAR: PLAYER 1 (HUMAN) & PLAYERS 2-6 (BOTS)     */}
+        {/* ============================================================== */}
+        <div className="shrink-0 px-6 py-2.5 bg-slate-950/95 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-white">تجهيز المقاتل:</span>
+            <span className="text-[11px] text-slate-400">
+              اختر اللاعب أو البوت من 1 إلى 6 لإلباسه وتجهيزه بالثياب والأسلحة:
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 md:pb-0">
+            {playerConfigs.map((p) => {
+              const isSelected = p.id === selectedPlayerId;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    setSelectedPlayerId(p.id);
+                    sounds.playButton();
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-slate-800 border-sky-400 text-white shadow-md ring-1 ring-sky-400/50'
+                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                  }`}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: p.color, boxShadow: `0 0 6px ${p.glowColor}` }}
+                  />
+                  <span>P{p.id}: {p.name}</span>
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono ${
+                      p.type === 'human'
+                        ? 'bg-cyan-500/20 text-cyan-300'
+                        : 'bg-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {p.type === 'human' ? 'لاعب' : 'بوت'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ============================================================== */}
+        {/* TABS SELECTOR (HATS, FULL SKINS, SHOES, WEAPON SKINS)          */}
         {/* ============================================================== */}
         <div className="shrink-0 px-6 pt-3 pb-2 border-b border-slate-800/80 bg-slate-900/60 flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setActiveTab('hats')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
                 activeTab === 'hats'
                   ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/25'
                   : 'bg-slate-800/70 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Crown className="w-4 h-4" />
-              <span>1. القبعات (7 نقود + 1 أسطورية بالجواهر)</span>
+              <span>1. القبعات</span>
             </button>
 
             <button
               onClick={() => setActiveTab('skins')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
                 activeTab === 'skins'
                   ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-md shadow-sky-500/25'
                   : 'bg-slate-800/70 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Shirt className="w-4 h-4" />
-              <span>2. السكينات الكاملة (أبطال العدالة بالجواهر)</span>
+              <span>2. السكينات الكاملة</span>
             </button>
 
             <button
               onClick={() => setActiveTab('shoes')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
                 activeTab === 'shoes'
                   ? 'bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-500 text-white shadow-md shadow-fuchsia-500/25'
                   : 'bg-slate-800/70 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Footprints className="w-4 h-4" />
-              <span>3. الأحذية النادرة (1000 جوهرة RGB)</span>
+              <span>3. الأحذية النادرة (RGB)</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('weapons')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer ${
+                activeTab === 'weapons'
+                  ? 'bg-gradient-to-r from-rose-500 via-purple-500 to-amber-500 text-white shadow-md shadow-rose-500/25'
+                  : 'bg-slate-800/70 text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Swords className="w-4 h-4" />
+              <span>4. سكينات الأسلحة المضيئة</span>
+              <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.2 rounded-full">
+                جديد
+              </span>
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-400 hidden md:flex items-center gap-2">
+          <div className="text-[11px] text-slate-400 hidden lg:flex items-center gap-2">
             <Info className="w-3.5 h-3.5 text-sky-400" />
-            <span>رسومات أصلية تظهر مباشرة على شخصيتك في المباريات!</span>
+            <span>
+              تجهيز حالي لـ: <span className="text-white font-bold">{targetPlayer.name} ({targetPlayer.type === 'human' ? 'لاعب' : 'بوت'})</span>
+            </span>
           </div>
         </div>
 

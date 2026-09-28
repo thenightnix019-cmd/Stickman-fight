@@ -14,7 +14,7 @@ import {
   WeaponType,
   PowerUpType,
 } from '../types/game';
-import { SKINS, HATS, SHOES, ShopSkin } from '../types/shop';
+import { SKINS, HATS, SHOES, WEAPON_SKINS, ShopSkin, ShopWeaponSkin } from '../types/shop';
 
 export interface CameraState {
   x: number;
@@ -626,7 +626,7 @@ function drawStickFigure(
   ctx.stroke();
 
   // Draw Equipped Weapon in hand
-  drawWeaponInHand(ctx, player.weapon, handX, handY, player.isAttacking);
+  drawWeaponInHand(ctx, player.weapon, handX, handY, player.isAttacking, config.equippedWeaponSkin);
 
   ctx.restore();
 
@@ -639,49 +639,94 @@ function drawWeaponInHand(
   weapon: WeaponType,
   handX: number,
   handY: number,
-  isAttacking: boolean
+  isAttacking: boolean,
+  equippedSkinId?: string | null
 ) {
   ctx.save();
   ctx.translate(handX, handY);
+
+  const skin = equippedSkinId ? WEAPON_SKINS.find((s) => s.id === equippedSkinId) : null;
+  const isSkinActive = !!skin && (skin.weaponType === 'all' || skin.weaponType === weapon);
+
+  const now = Date.now();
+  const isRainbow = isSkinActive && (skin.glowColor === 'rainbow' || skin.effect === 'rainbow');
+  const rainbowHue = (now * 0.15) % 360;
+
+  const glowColor = isSkinActive
+    ? isRainbow
+      ? `hsl(${rainbowHue}, 100%, 65%)`
+      : skin.glowColor
+    : null;
+  const primaryColor = isSkinActive
+    ? isRainbow
+      ? `hsl(${(rainbowHue + 40) % 360}, 90%, 55%)`
+      : skin.primaryColor
+    : null;
+  const secondaryColor = isSkinActive
+    ? isRainbow
+      ? `hsl(${(rainbowHue + 80) % 360}, 95%, 60%)`
+      : skin.secondaryColor
+    : null;
+  const bladeColor = isSkinActive
+    ? isRainbow
+      ? `hsl(${(rainbowHue + 120) % 360}, 100%, 75%)`
+      : skin.bladeColor || skin.glowColor
+    : null;
+
+  if (isSkinActive && glowColor) {
+    const pulse = (Math.sin(now * 0.008) + 1) * 0.5;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 8 + pulse * 6;
+  }
 
   if (weapon === 'sword') {
     const angle = isAttacking ? 0.35 : -0.7;
     ctx.rotate(angle);
     // Hilt
-    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeStyle = primaryColor || '#94a3b8';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(4, 0);
     ctx.stroke();
     // Guard
-    ctx.strokeStyle = '#f59e0b';
+    ctx.strokeStyle = secondaryColor || '#f59e0b';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(4, -4);
     ctx.lineTo(4, 4);
     ctx.stroke();
     // Blade
-    ctx.strokeStyle = '#f8fafc';
+    ctx.strokeStyle = bladeColor || '#f8fafc';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(4, 0);
     ctx.lineTo(24, 0);
     ctx.stroke();
+
+    if (isSkinActive) {
+      // Radiant energy blade core
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(6, 0);
+      ctx.lineTo(22, 0);
+      ctx.stroke();
+    }
   } else if (weapon === 'axe') {
     const angle = isAttacking ? 0.45 : -0.65;
     ctx.rotate(angle);
-    // Wooden haft
-    ctx.strokeStyle = '#92400e';
+    // Haft
+    ctx.strokeStyle = primaryColor || '#92400e';
     ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.moveTo(-5, 0);
     ctx.lineTo(19, 0);
     ctx.stroke();
 
-    // Steel Battleaxe Blade
-    ctx.fillStyle = '#cbd5e1';
-    ctx.strokeStyle = '#f8fafc';
+    // Battleaxe Blade
+    ctx.fillStyle = bladeColor || '#cbd5e1';
+    ctx.strokeStyle = glowColor || '#f8fafc';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(12, -12);
@@ -692,37 +737,57 @@ function drawWeaponInHand(
     ctx.fill();
     ctx.stroke();
 
-    // Golden axe collar & band
-    ctx.fillStyle = '#fbbf24';
+    // Axe collar & band
+    ctx.fillStyle = secondaryColor || '#fbbf24';
     ctx.fillRect(10, -3, 3.5, 6);
+
+    if (isSkinActive) {
+      // Rune engraving on blade
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(17, 0, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
   } else if (weapon === 'gun') {
-    ctx.strokeStyle = '#64748b';
+    ctx.strokeStyle = primaryColor || '#64748b';
     ctx.lineWidth = 3;
     ctx.strokeRect(0, -3, 10, 4);
-    ctx.fillStyle = '#334155';
+    ctx.fillStyle = secondaryColor || '#334155';
     ctx.fillRect(2, 1, 3, 5); // handle
+
+    if (isSkinActive) {
+      // Glowing laser muzzle
+      ctx.fillStyle = bladeColor || glowColor || '#38bdf8';
+      ctx.fillRect(9, -2, 2.5, 2);
+    }
   } else if (weapon === 'rocket') {
-    ctx.strokeStyle = '#475569';
+    ctx.strokeStyle = primaryColor || '#475569';
     ctx.lineWidth = 4.5;
     ctx.beginPath();
     ctx.moveTo(-6, -2);
     ctx.lineTo(16, -2);
     ctx.stroke();
     // Rocket tip
-    ctx.fillStyle = '#ef4444';
+    ctx.fillStyle = secondaryColor || '#ef4444';
     ctx.beginPath();
     ctx.moveTo(16, -5);
     ctx.lineTo(22, -2);
     ctx.lineTo(16, 1);
     ctx.fill();
+
+    if (isSkinActive) {
+      // Glowing exhaust ring
+      ctx.fillStyle = glowColor || '#fbbf24';
+      ctx.fillRect(-7, -4, 2, 4);
+    }
   } else if (weapon === 'rope') {
-    ctx.strokeStyle = '#a855f7';
+    ctx.strokeStyle = primaryColor || '#a855f7';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.arc(4, 0, 4, 0, Math.PI * 1.5);
     ctx.stroke();
     // Hook claw
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = bladeColor || '#e2e8f0';
     ctx.beginPath();
     ctx.moveTo(6, -2);
     ctx.lineTo(10, -4);
@@ -730,16 +795,24 @@ function drawWeaponInHand(
     ctx.stroke();
   } else if (weapon === 'magnet') {
     // Horseshoe magnet
-    ctx.strokeStyle = '#06b6d4';
+    ctx.strokeStyle = primaryColor || '#06b6d4';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(6, 0, 6, Math.PI * 0.5, Math.PI * 1.5);
     ctx.stroke();
     // Magnet tips
-    ctx.fillStyle = '#ef4444';
+    ctx.fillStyle = secondaryColor || '#ef4444';
     ctx.fillRect(6, -8, 4, 3);
-    ctx.fillStyle = '#3b82f6';
+    ctx.fillStyle = glowColor || '#3b82f6';
     ctx.fillRect(6, 5, 4, 3);
+  } else if (weapon === 'fists' && isSkinActive && glowColor) {
+    // Radiant knuckle aura when unarmed
+    ctx.fillStyle = glowColor;
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+    ctx.arc(0, 0, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 
   ctx.restore();
