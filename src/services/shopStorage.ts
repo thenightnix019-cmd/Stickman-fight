@@ -44,9 +44,41 @@ export function saveWallet(wallet: PlayerWallet) {
   }
 }
 
+export interface PromoCodeConfig {
+  coins: number;
+  gems: number;
+  message: string;
+}
+
+export const PROMO_CODES: Record<string, PromoCodeConfig> = {
+  niiro: {
+    coins: 2000,
+    gems: 100,
+    message: 'مبروك! تم تفعيل كود niiro وحصلت على 100 جوهرة و 2000 نقود بنجاح!',
+  },
+  zero: {
+    coins: 0,
+    gems: 1000,
+    message: 'مبروك! تم تفعيل كود zero وحصلت على 1000 جوهرة بنجاح!',
+  },
+  mr001: {
+    coins: 3000,
+    gems: 500,
+    message: 'مبروك! تم تفعيل كود mr001 وحصلت على 500 جوهرة و 3000 نقود بنجاح!',
+  },
+  thenightnix: {
+    coins: 5000,
+    gems: 1000,
+    message: 'مبروك! تم تفعيل كود thenightnix وحصلت على 1000 جوهرة و 5000 نقود بنجاح!',
+  },
+};
+
 /**
  * Validates and activates promo codes:
- * Secret Code: "thenightnix" -> gives 1000 Gems and 5000 Coins for FREE!
+ * - "niiro": 100 gems & 2000 coins
+ * - "zero": 1000 gems & 0 coins
+ * - "mr001": 500 gems & 3000 coins
+ * - "thenightnix": 1000 gems & 5000 coins
  */
 export function redeemPromoCode(inputCode: string): {
   success: boolean;
@@ -59,8 +91,10 @@ export function redeemPromoCode(inputCode: string): {
   const currentWallet = loadWallet();
   const redeemedList = currentWallet.redeemedCodes || [];
 
-  if (normalized === 'thenightnix') {
-    if (redeemedList.includes('thenightnix')) {
+  const promo = PROMO_CODES[normalized];
+
+  if (promo) {
+    if (redeemedList.includes(normalized)) {
       return {
         success: false,
         message: 'لقد قمت بتفعيل هذا الكود مسبقاً!',
@@ -69,25 +103,55 @@ export function redeemPromoCode(inputCode: string): {
 
     const updated: PlayerWallet = {
       ...currentWallet,
-      coins: currentWallet.coins + 5000,
-      gems: currentWallet.gems + 1000,
-      redeemedCodes: [...redeemedList, 'thenightnix'],
+      coins: currentWallet.coins + promo.coins,
+      gems: currentWallet.gems + promo.gems,
+      redeemedCodes: [...redeemedList, normalized],
     };
 
     saveWallet(updated);
     return {
       success: true,
-      message: 'مبروك! تم تفعيل الكود بنجاح وحصلت على 1000 جوهرة و 5000 نقود مجاناً!',
+      message: promo.message,
       newWallet: updated,
-      coinsAwarded: 5000,
-      gemsAwarded: 1000,
+      coinsAwarded: promo.coins,
+      gemsAwarded: promo.gems,
     };
   }
 
   // Any other code is invalid
   return {
     success: false,
-    message: 'هذا الكود خاطئ',
+    message: 'هذا الكود غير صحيح، تأكد من كتابته بشكل سليم!',
+  };
+}
+
+/**
+ * Claims free recharge bonus from YouTube channel support (+1000 coins, +100 gems)
+ */
+export function claimYoutubeRecharge(): {
+  success: boolean;
+  message: string;
+  newWallet: PlayerWallet;
+  coinsAwarded: number;
+  gemsAwarded: number;
+} {
+  const currentWallet = loadWallet();
+  const coinsAwarded = 1000;
+  const gemsAwarded = 100;
+
+  const updated: PlayerWallet = {
+    ...currentWallet,
+    coins: currentWallet.coins + coinsAwarded,
+    gems: currentWallet.gems + gemsAwarded,
+  };
+
+  saveWallet(updated);
+  return {
+    success: true,
+    message: 'تم شحن رصيد مجاني بنجاح! +1000 نقود و +100 جوهرة',
+    newWallet: updated,
+    coinsAwarded,
+    gemsAwarded,
   };
 }
 

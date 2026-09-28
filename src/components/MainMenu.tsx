@@ -18,6 +18,7 @@ import {
   KeyRound,
 } from 'lucide-react';
 import { sounds } from '../audio/soundEngine';
+import { StickmanGamer, StickmanParkour } from './StickmanIcons';
 
 interface MainMenuProps {
   onPlay: () => void;
@@ -289,8 +290,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
       {/* Footer Info */}
       <footer className="relative z-10 w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2 border-t border-slate-900 pt-4">
-        <span>🎮 تدعم لوحة المفاتيح حتى 4 لاعبين محليين + بوتات ذكية</span>
-        <span>اضغط على ⛶ ملء الشاشة للحصول على أفضل تجربة على الحاسوب</span>
+        <div className="flex items-center gap-2">
+          <StickmanGamer className="w-5 h-5 text-cyan-400 shrink-0" />
+          <span>تدعم لوحة المفاتيح حتى 4 لاعبين محليين + بوتات ذكية</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <StickmanParkour className="w-5 h-5 text-indigo-400 shrink-0" />
+          <span>باركور الجدران السريع متوفر في جميع الحلبات</span>
+        </div>
       </footer>
 
       {/* Exit Confirmation Modal */}

@@ -102,8 +102,8 @@ export function createInitialPlayer(id: PlayerId, x: number, y: number): PlayerS
     facing: id === 1 || id === 3 ? 1 : -1,
     isGrounded: false,
     canDoubleJump: true,
-    hp: 100,
-    maxHp: 100,
+    hp: 200,
+    maxHp: 200,
     isAlive: true,
     invincibleTimer: 1.5,
     walkFrame: 0,
@@ -173,44 +173,52 @@ export function updatePlayerMovement(
     }
   }
 
-  // Fire patch burn effect
+  // Fire patch burn effect (slightly reduced damage as requested: 0.22 dmg, lower duration)
   if (player.onFireTimer > 0) {
     player.onFireTimer = Math.max(0, player.onFireTimer - dt);
-    if (Math.random() < 0.25) {
-      applyDamage(player, 1.2, null, floatingTexts, particles);
+    if (Math.random() < 0.09) {
+      applyDamage(player, 0.22, null, floatingTexts, particles);
     }
     // spawn fire particle
-    if (Math.random() < 0.4) {
+    if (Math.random() < 0.3) {
       particles.push({
         x: player.x + (Math.random() - 0.5) * player.width,
         y: player.y + (Math.random() - 0.5) * player.height,
         vx: (Math.random() - 0.5) * 2,
         vy: -Math.random() * 2 - 1,
-        life: 0.35,
-        maxLife: 0.35,
+        life: 0.3,
+        maxLife: 0.3,
         color: '#f97316',
         size: 3 + Math.random() * 3,
-        alpha: 0.9,
+        alpha: 0.85,
         type: 'fire',
       });
     }
   }
 
-  // Check if player stands in any fire patch
+  // Check if player stands in any fire patch (reduced fire duration)
   for (const patch of firePatches) {
     if (
       player.x + player.width / 2 >= patch.x &&
       player.x - player.width / 2 <= patch.x + patch.width &&
       Math.abs(player.y + player.height / 2 - patch.y) < 18
     ) {
-      player.onFireTimer = 3;
+      player.onFireTimer = 1.2;
     }
   }
 
   // Multipliers
   const isGiant = player.activePowerUp === 'giant';
   const isSpeed = player.activePowerUp === 'speed';
-  const speedMult = isSpeed ? 1.65 : isGiant ? 0.85 : 1.0;
+  let speedMult = isSpeed ? 1.65 : isGiant ? 0.85 : 1.0;
+
+  // Arena Gravity Event: Heavy movement on ground + low floaty gravity for colossal leaps!
+  // "بحيث تقفز قفزات كبيرة وثقل في الحركة فقط"
+  let currentGravity = GRAVITY;
+  if (activeEvent?.type === 'gravity') {
+    currentGravity = 0.18; // Floaty lunar gravity for colossal leap hangtime
+    speedMult *= 0.52; // Heavy grounded movement ("ثقل في الحركة")
+  }
   const currentMoveSpeed = MOVE_SPEED * speedMult;
 
   // Speed particle trail
@@ -248,11 +256,6 @@ export function updatePlayerMovement(
   }
 
   // Random Events impact on physics
-  let currentGravity = GRAVITY;
-  if (activeEvent?.type === 'gravity') {
-    currentGravity = -0.38; // Inverted gravity!
-  }
-
   if (activeEvent?.type === 'wind') {
     const windForce = (activeEvent.param || 1) * 0.42;
     player.vx += windForce;
@@ -317,12 +320,14 @@ export function updatePlayerMovement(
   // Jump logic (including Wall Jump Parkour)
   if (inputs.jump) {
     if (player.isWallSliding && player.wallSlideSide) {
-      // Wall Jump / Parkour leap!
+      // Powerful Wall Jump / Parkour kick-off!
       const jumpDir = player.wallSlideSide === 'left' ? 1 : -1;
-      player.vy = -12.0;
-      player.vx = jumpDir * 9.5;
+      const jumpMult = activeEvent?.type === 'gravity' ? 1.55 : 1.0;
+      player.vy = -15.5 * jumpMult; // Strong, satisfying wall kick
+      player.vx = jumpDir * 12.0; // Clean impulse away from wall
       player.facing = jumpDir as 1 | -1;
       player.isWallSliding = false;
+      player.wallSlideSide = null;
       player.canDoubleJump = true;
       sounds.playJump();
       spawnDustParticles(player.x, player.y, particles, '#38bdf8');
@@ -331,19 +336,21 @@ export function updatePlayerMovement(
         text: 'PARKOUR!',
         x: player.x,
         y: player.y - 30,
-        vy: -1.4,
+        vy: -1.5,
         color: '#38bdf8',
         alpha: 1,
-        scale: 1.1,
+        scale: 1.15,
       });
     } else if (player.isGrounded) {
-      player.vy = JUMP_FORCE * (isSpeed ? 1.25 : 1.0);
+      const jumpMult = (isSpeed ? 1.25 : 1.0) * (activeEvent?.type === 'gravity' ? 1.75 : 1.0);
+      player.vy = JUMP_FORCE * jumpMult;
       player.isGrounded = false;
       player.canDoubleJump = true;
       sounds.playJump();
       spawnDustParticles(player.x, player.y + player.height / 2, particles);
     } else if (player.canDoubleJump && !player.isJetpacking) {
-      player.vy = DOUBLE_JUMP_FORCE * (isSpeed ? 1.25 : 1.0);
+      const jumpMult = (isSpeed ? 1.25 : 1.0) * (activeEvent?.type === 'gravity' ? 1.75 : 1.0);
+      player.vy = DOUBLE_JUMP_FORCE * jumpMult;
       player.canDoubleJump = false;
       sounds.playDoubleJump();
       spawnDustParticles(player.x, player.y + player.height / 2, particles, '#38bdf8');
@@ -445,12 +452,12 @@ export function updatePlayerMovement(
     player.wallSlideSide = null;
   }
 
-  // Wall Parkour slide detection (airborne next to solid wall)
+  // Wall Parkour slide detection (airborne next to solid wall or boundary)
   let touchingLeft = false;
   let touchingRight = false;
 
-  if (!player.isGrounded && player.vy > -3) {
-    // Check platforms
+  if (!player.isGrounded) {
+    // Check solid platforms for vertical wall edges
     for (const plat of platforms) {
       if (plat.oneWay) continue;
       const platTop = plat.y;
@@ -458,45 +465,46 @@ export function updatePlayerMovement(
       const platLeft = plat.x;
       const platRight = plat.x + plat.width;
 
-      if (player.y + halfH > platTop + 4 && player.y - halfH < platBottom - 4) {
+      if (player.y + halfH > platTop + 2 && player.y - halfH < platBottom - 2) {
         // Player's left side against platform's right edge
-        if (Math.abs((player.x - halfW) - platRight) < 12) {
+        if (Math.abs((player.x - halfW) - platRight) < 22) {
           touchingLeft = true;
         }
         // Player's right side against platform's left edge
-        if (Math.abs((player.x + halfW) - platLeft) < 12) {
+        if (Math.abs((player.x + halfW) - platLeft) < 22) {
           touchingRight = true;
         }
       }
     }
 
     // Check arena boundary walls for parkour leaps
-    if (player.x - halfW <= 46) {
+    if (player.x - halfW <= 50) {
       touchingLeft = true;
     }
-    if (player.x + halfW >= arenaBounds.width - 46) {
+    if (player.x + halfW >= arenaBounds.width - 50) {
       touchingRight = true;
     }
   }
 
-  if ((touchingLeft || touchingRight) && !player.isGrounded && player.vy > -2) {
+  if ((touchingLeft || touchingRight) && !player.isGrounded) {
     player.isWallSliding = true;
     player.wallSlideSide = touchingLeft ? 'left' : 'right';
-    if (player.vy > 1.8) {
-      player.vy = 1.8; // parkour wall grip friction
+    // Controlled smooth parkour wall friction slide (doesn't let player plummet instantly)
+    if (player.vy > 1.5) {
+      player.vy = 1.5;
     }
     // Friction sparks against the wall
-    if (Math.random() < 0.4) {
+    if (Math.random() < 0.5) {
       particles.push({
         x: touchingLeft ? player.x - halfW : player.x + halfW,
-        y: player.y + halfH - 12,
-        vx: touchingLeft ? (1 + Math.random() * 2) : (-1 - Math.random() * 2),
-        vy: -Math.random() * 2 - 0.5,
-        life: 0.22,
-        maxLife: 0.22,
-        color: '#fbbf24',
-        size: 3,
-        alpha: 0.85,
+        y: player.y + halfH - 8,
+        vx: touchingLeft ? (1 + Math.random() * 2.5) : (-1 - Math.random() * 2.5),
+        vy: -Math.random() * 2.5 - 0.5,
+        life: 0.25,
+        maxLife: 0.25,
+        color: '#38bdf8',
+        size: 3.5,
+        alpha: 0.9,
         type: 'spark',
       });
     }
@@ -516,6 +524,10 @@ export function updatePlayerMovement(
       const pickup = weaponPickups[i];
       const dist = Math.hypot(player.x - pickup.x, player.y - pickup.y);
       if (dist < 36) {
+        // In The Hero mode, fighters only wield axes!
+        if (gameMode === 'the_hero' && pickup.type !== 'axe') {
+          continue;
+        }
         // Pick up weapon
         player.weapon = pickup.type;
         player.ammo = pickup.ammo;
@@ -641,7 +653,7 @@ export function executePlayerAttack(
       floatingTexts,
       gameMode
     );
-    consumeWeaponAmmo(player, weaponPickups);
+    consumeWeaponAmmo(player, weaponPickups, gameMode);
   } else if (player.weapon === 'axe') {
     sounds.playAxe();
     // Heavy axe cleave particles
@@ -656,7 +668,7 @@ export function executePlayerAttack(
       floatingTexts,
       gameMode
     );
-    consumeWeaponAmmo(player, weaponPickups);
+    consumeWeaponAmmo(player, weaponPickups, gameMode);
   } else if (player.weapon === 'gun') {
     sounds.playGunShot();
     // Bullet projectile
@@ -782,11 +794,18 @@ export function executePlayerAttack(
       }
     });
 
-    consumeWeaponAmmo(player, weaponPickups);
+    consumeWeaponAmmo(player, weaponPickups, gameMode);
   }
 }
 
-function consumeWeaponAmmo(player: PlayerState, weaponPickups: WeaponPickup[]) {
+function consumeWeaponAmmo(player: PlayerState, weaponPickups: WeaponPickup[], gameMode?: GameMode) {
+  if (gameMode === 'the_hero') {
+    // In The Hero mode, the Hero wields their Battleaxe indefinitely!
+    player.weapon = 'axe';
+    player.ammo = 999;
+    player.maxAmmo = 999;
+    return;
+  }
   if (player.weapon === 'fists') return;
   player.ammo -= 1;
   if (player.ammo <= 0) {

@@ -2,6 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { X, Keyboard, Shield, Zap, Sparkles, RotateCcw, Check, Swords } from 'lucide-react';
 import { PlayerId, PlayerKeyBindingsMap, PlayerKeyBinding } from '../types/game';
 import { DEFAULT_KEY_BINDINGS, getKeyDisplayLabel } from '../engine/keybindings';
+import {
+  StickmanAxe,
+  StickmanSword,
+  StickmanGun,
+  StickmanRocket,
+  StickmanGrapple,
+  StickmanMagnet,
+  StickmanSpeed,
+  StickmanShield,
+  StickmanFire,
+  StickmanGravity,
+  StickmanWind,
+  StickmanLava,
+  StickmanHero,
+} from './StickmanIcons';
 
 interface ControlsGuideProps {
   isOpen: boolean;
@@ -284,11 +299,13 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
             <div className="space-y-3">
               {/* New Axe Weapon */}
               <div className="p-4 bg-gradient-to-r from-amber-950/40 to-slate-900 rounded-2xl border border-amber-500/40 flex items-start gap-3 shadow-md">
-                <span className="text-2xl">🪓</span>
+                <div className="p-1 bg-amber-500/10 rounded-xl border border-amber-500/20 shrink-0">
+                  <StickmanAxe className="w-8 h-8 text-amber-400" />
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-black text-amber-400 uppercase tracking-wide">
-                      Battleaxe (الفأس الحربي - جديد في باتل رويال)
+                      Battleaxe (الفأس الحربي - سلاح الأبطال)
                     </h4>
                     <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">
                       ضرر عنيف (42 DMG)
@@ -302,7 +319,9 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
               {/* Sword */}
               <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
-                <span className="text-xl">🗡️</span>
+                <div className="p-1 bg-sky-500/10 rounded-xl border border-sky-500/20 shrink-0">
+                  <StickmanSword className="w-7 h-7 text-sky-400" />
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Sword (السيف)</h4>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -313,7 +332,9 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
               {/* Gun */}
               <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
-                <span className="text-xl">🔫</span>
+                <div className="p-1 bg-rose-500/10 rounded-xl border border-rose-500/20 shrink-0">
+                  <StickmanGun className="w-7 h-7 text-rose-400" />
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Blaster Gun (مسدس الليزر)</h4>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -324,7 +345,9 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
               {/* Rocket Launcher */}
               <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
-                <span className="text-xl">🚀</span>
+                <div className="p-1 bg-orange-500/10 rounded-xl border border-orange-500/20 shrink-0">
+                  <StickmanRocket className="w-7 h-7 text-orange-400" />
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Rocket Launcher (قاذف الصواريخ)</h4>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -335,7 +358,9 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
               {/* Grapple Hook */}
               <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
-                <span className="text-xl">🪝</span>
+                <div className="p-1 bg-emerald-500/10 rounded-xl border border-emerald-500/20 shrink-0">
+                  <StickmanGrapple className="w-7 h-7 text-emerald-400" />
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Grapple Hook (خطاف السحب)</h4>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -346,7 +371,9 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
               {/* Magnet Pulse */}
               <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
-                <span className="text-xl">🧲</span>
+                <div className="p-1 bg-purple-500/10 rounded-xl border border-purple-500/20 shrink-0">
+                  <StickmanMagnet className="w-7 h-7 text-purple-400" />
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">Magnet Pulse (مغناطيس الدفع)</h4>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -359,59 +386,92 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({
 
           {activeTab === 'powerups' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-amber-500/30">
-                <span className="text-lg">⭐</span>
-                <h4 className="text-xs font-bold text-amber-400 mt-1 uppercase">Giant Mode</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  حجم مضاعف + زيادة المدى والضرر بنسبة 40% مع مقاومة الارتداد.
-                </p>
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-amber-500/30 flex items-start gap-3">
+                <div className="p-1 bg-amber-500/10 rounded-xl border border-amber-500/20 shrink-0">
+                  <StickmanHero className="w-7 h-7 text-amber-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-amber-400 uppercase">Giant Mode</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    حجم مضاعف + زيادة المدى والضرر بنسبة 40% مع مقاومة الارتداد.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-cyan-500/30">
-                <span className="text-lg">⚡</span>
-                <h4 className="text-xs font-bold text-cyan-400 mt-1 uppercase">Speed Boost</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  سرعة حركة مضاعفة وقفزات رشيقة جداً للمراوغة السريعة.
-                </p>
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-cyan-500/30 flex items-start gap-3">
+                <div className="p-1 bg-cyan-500/10 rounded-xl border border-cyan-500/20 shrink-0">
+                  <StickmanSpeed className="w-7 h-7 text-cyan-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-cyan-400 uppercase">Speed Boost</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    سرعة حركة مضاعفة وقفزات رشيقة جداً للمراوغة السريعة.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-sky-500/30">
-                <span className="text-lg">🛡️</span>
-                <h4 className="text-xs font-bold text-sky-400 mt-1 uppercase">Energy Shield</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  فقاعة حماية زرقاء تمتص حتى 60 نقطة ضرر من جميع الهجمات.
-                </p>
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-sky-500/30 flex items-start gap-3">
+                <div className="p-1 bg-sky-500/10 rounded-xl border border-sky-500/20 shrink-0">
+                  <StickmanShield className="w-7 h-7 text-sky-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-sky-400 uppercase">Energy Shield</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    فقاعة حماية زرقاء تمتص حتى 60 نقطة ضرر من جميع الهجمات.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-pink-500/30">
-                <span className="text-lg">🔥</span>
-                <h4 className="text-xs font-bold text-pink-400 mt-1 uppercase">Combo 2X Multiplier</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  مضاعفة الضرر والارتداد مع كل ضربة متتالية سريعة.
-                </p>
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-pink-500/30 flex items-start gap-3">
+                <div className="p-1 bg-pink-500/10 rounded-xl border border-pink-500/20 shrink-0">
+                  <StickmanFire className="w-7 h-7 text-pink-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-pink-400 uppercase">Combo 2X Multiplier</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    مضاعفة الضرر والارتداد مع كل ضربة متتالية سريعة.
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'events' && (
             <div className="space-y-3">
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                <h4 className="text-xs font-bold text-white uppercase">🌀 Reverse Gravity (انقلاب الجاذبية)</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  انعكاس الجاذبية للأعلى ليطير المقاتلون نحو السقف!
-                </p>
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
+                <div className="p-1 bg-purple-500/10 rounded-xl border border-purple-500/20 shrink-0">
+                  <StickmanGravity className="w-7 h-7 text-purple-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase">Colossal Leaps (انقلاب الجاذبية وقفزات عملاقة)</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    قفزات هائلة وعالية جداً في الهواء تدوم طويلاً مع ثقل ووزن في الحركة على الأرض!
+                  </p>
+                </div>
               </div>
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                <h4 className="text-xs font-bold text-white uppercase">💨 Gale Winds (رياح عاتية)</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  رياح شرسة تدفع جميع المقاتلين نحو حواف الحلبة.
-                </p>
+
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
+                <div className="p-1 bg-slate-800 rounded-xl border border-slate-700 shrink-0">
+                  <StickmanWind className="w-7 h-7 text-slate-300" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase">Gale Winds (رياح عاتية)</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    رياح شرسة تدفع جميع المقاتلين نحو حواف الحلبة.
+                  </p>
+                </div>
               </div>
-              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                <h4 className="text-xs font-bold text-white uppercase">🌋 Magma Inferno (حمم نارية)</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  اشتعال منصات الحلبة بنيران حارقة تسبب ضرراً مستمراً.
-                </p>
+
+              <div className="p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 flex items-start gap-3">
+                <div className="p-1 bg-rose-500/10 rounded-xl border border-rose-500/20 shrink-0">
+                  <StickmanLava className="w-7 h-7 text-rose-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase">Magma Hazard (حمم نارية خفيفة)</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    اشتعال بعض منصات الحلبة بنيران خفيفة بضرر قليل ومتوازن يسهل تفاديه والنجاة منه.
+                  </p>
+                </div>
               </div>
             </div>
           )}

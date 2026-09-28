@@ -143,6 +143,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       playerState.team = cfg.team || (index % 2 === 0 ? 'red' : 'blue');
       playerState.isInfected =
         settings.mode === 'infection' ? index === initialInfectedIndex : false;
+
+      // The Hero Mode: 300 HP and Battleaxe only
+      if (settings.mode === 'the_hero') {
+        playerState.hp = 300;
+        playerState.maxHp = 300;
+        playerState.weapon = 'axe';
+        playerState.ammo = 999;
+        playerState.maxAmmo = 999;
+      }
+
       return playerState;
     });
 
@@ -404,40 +414,39 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               player.y <= hz.y + hz.height + 40;
 
             if (inZone) {
-              // Exact 5 HP per second drain in King of the Hill / Hill Zone
-              const dps = settings.mode === 'king_of_the_hill' ? 5 : (hz.dps || 5);
-              player.hp -= dps * dt;
-              if (Math.random() < 0.2) {
-                floatingTextsRef.current.push({
-                  id: Math.random().toString(),
-                  text: `ZONE -${Math.round(dps)}`,
-                  x: player.x,
-                  y: player.y - 30,
-                  vy: -1.1,
-                  color: '#f59e0b',
-                  alpha: 0.9,
-                  scale: 0.9,
-                });
+              // Healing Hill Zone:
+              // In The Hero mode: heals +5 HP every second!
+              // In other modes with a hill zone: heals +3 HP every second!
+              const healRate = settings.mode === 'the_hero' ? 5 : 3;
+              if (player.hp < player.maxHp) {
+                player.hp = Math.min(player.maxHp, player.hp + healRate * dt);
+                if (Math.random() < 0.16) {
+                  floatingTextsRef.current.push({
+                    id: Math.random().toString(),
+                    text: `+${healRate} HP`,
+                    x: player.x,
+                    y: player.y - 30,
+                    vy: -1.2,
+                    color: '#10b981',
+                    alpha: 0.95,
+                    scale: 0.95,
+                  });
+                }
               }
-              // Zone particle sparks
-              if (Math.random() < 0.3) {
+              // Healing emerald sparkle particles
+              if (Math.random() < 0.35) {
                 particlesRef.current.push({
                   x: player.x + (Math.random() - 0.5) * player.width,
                   y: player.y + (Math.random() - 0.5) * player.height,
-                  vx: (Math.random() - 0.5) * 3,
-                  vy: -Math.random() * 2 - 1,
-                  life: 0.3,
-                  maxLife: 0.3,
-                  color: '#f59e0b',
+                  vx: (Math.random() - 0.5) * 2,
+                  vy: -Math.random() * 2.5 - 1,
+                  life: 0.35,
+                  maxLife: 0.35,
+                  color: '#34d399',
                   size: 3 + Math.random() * 3,
-                  alpha: 0.8,
+                  alpha: 0.85,
                   type: 'spark',
                 });
-              }
-              if (player.hp <= 0) {
-                player.isAlive = false;
-                player.hp = 0;
-                sounds.playDeath();
               }
 
               // In King of the Hill mode, zone grants points
@@ -726,8 +735,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     if (chosen === 'gravity') {
       activeEventRef.current = {
         type: 'gravity',
-        name: 'REVERSE GRAVITY!',
-        description: 'Gravity inverted! Fighters float to the ceiling.',
+        name: 'COLOSSAL LEAPS (قفزات عملاقة وثقل)',
+        description: 'قفزات هائلة وعالية جداً في الهواء مع ثقل ووزن في الحركة على الأرض!',
         timeRemaining: 10,
         maxDuration: 10,
         intensity: 1,
@@ -755,20 +764,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     } else if (chosen === 'fire') {
       activeEventRef.current = {
         type: 'fire',
-        name: 'MAGMA INFERNO!',
-        description: 'Blazing fire erupted onto arena platforms!',
-        timeRemaining: 12,
-        maxDuration: 12,
+        name: 'MAGMA HAZARD (حمم نارية خفيفة)',
+        description: 'حمم نارية على بعض المنصات بضرر خفيف ومتوازن يسهل تفاديه!',
+        timeRemaining: 8,
+        maxDuration: 8,
         intensity: 1,
       };
-      // Spawn fire patches on 2-3 platforms
+      // Spawn fire patches on 2-3 platforms with reduced duration
       for (const plat of map.platforms) {
-        if (Math.random() < 0.6) {
+        if (Math.random() < 0.5) {
           firePatchesRef.current.push({
             x: plat.x + Math.random() * (plat.width * 0.4),
             y: plat.y,
-            width: Math.min(180, plat.width * 0.5),
-            duration: 12,
+            width: Math.min(160, plat.width * 0.45),
+            duration: 8,
           });
         }
       }
@@ -789,6 +798,27 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Helper: Weapon Roulette Roll
   const rollWeaponRoulette = () => {
     sounds.playRouletteTick();
+    if (settings.mode === 'the_hero') {
+      // In The Hero mode, heroes always wield their Battleaxe!
+      for (const player of playersRef.current) {
+        if (!player.isAlive) continue;
+        player.weapon = 'axe';
+        player.ammo = 999;
+        player.maxAmmo = 999;
+        floatingTextsRef.current.push({
+          id: Math.random().toString(),
+          text: 'HERO AXE ✦ READY',
+          x: player.x,
+          y: player.y - 45,
+          vy: -1.6,
+          color: '#f43f5e',
+          alpha: 1,
+          scale: 1.15,
+        });
+      }
+      return;
+    }
+
     const weaponPool: WeaponType[] = ['sword', 'axe', 'gun', 'rocket', 'rope', 'magnet'];
     for (const player of playersRef.current) {
       if (!player.isAlive) continue;
@@ -816,6 +846,34 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const targetPlat = map.platforms[Math.floor(Math.random() * map.platforms.length)];
     const spawnX = targetPlat.x + 20 + Math.random() * Math.max(20, targetPlat.width - 40);
     const spawnY = targetPlat.y - 30;
+
+    if (settings.mode === 'the_hero') {
+      // In The Hero mode, only Axes or Power-ups spawn
+      if (isPowerUp) {
+        const powerPool: PowerUpType[] = ['giant', 'speed', 'shield', 'combo', 'jetpack'];
+        const chosen = powerPool[Math.floor(Math.random() * powerPool.length)];
+        powerUpPickupsRef.current.push({
+          id: Math.random().toString(),
+          type: chosen,
+          x: spawnX,
+          y: spawnY,
+          duration: 20,
+          bobOffset: Math.random() * Math.PI,
+        });
+      } else {
+        weaponPickupsRef.current.push({
+          id: Math.random().toString(),
+          type: 'axe',
+          x: spawnX,
+          y: spawnY - 60,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -3,
+          ammo: 999,
+          grounded: false,
+        });
+      }
+      return;
+    }
 
     if (isPowerUp) {
       const powerPool: PowerUpType[] = ['giant', 'speed', 'shield', 'combo', 'jetpack'];

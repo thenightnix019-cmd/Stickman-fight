@@ -14,7 +14,7 @@ import {
   WeaponType,
   PowerUpType,
 } from '../types/game';
-import { SKINS, HATS, SHOES } from '../types/shop';
+import { SKINS, HATS, SHOES, ShopSkin } from '../types/shop';
 
 export interface CameraState {
   x: number;
@@ -159,35 +159,48 @@ export function renderGame(
   ctx.stroke();
   ctx.restore();
 
-  // 2. Draw King of the Hill / Hell Zone
-  if (map.hillZone && (gameMode === 'king_of_the_hill' || map.hillZone.dps)) {
+  // 2. Draw Healing Sanctuary / Hill Zone
+  if (map.hillZone) {
     const hz = map.hillZone;
     const pulse = (Math.sin(Date.now() * 0.006) + 1) * 0.5;
-    const isHellZone = !!hz.dps;
-
-    const hillColor = isHellZone
-      ? (hz.color || '#ef4444')
-      : hillControllingPlayer
-      ? playerConfigs.find((p) => p.id === hillControllingPlayer.id)?.color || '#38bdf8'
-      : '#38bdf8';
+    const isHeroMode = gameMode === 'the_hero';
+    const healColor = isHeroMode ? '#10b981' : (hz.color || '#10b981');
 
     ctx.save();
-    ctx.fillStyle = hillColor;
-    ctx.globalAlpha = isHellZone ? 0.16 + pulse * 0.09 : 0.12 + pulse * 0.08;
+    ctx.fillStyle = healColor;
+    ctx.globalAlpha = 0.12 + pulse * 0.08;
     ctx.fillRect(hz.x, hz.y, hz.width, hz.height);
 
-    ctx.strokeStyle = hillColor;
-    ctx.lineWidth = isHellZone ? 3 + pulse * 1.5 : 2 + pulse * 2;
-    ctx.globalAlpha = 0.7 + pulse * 0.3;
-    ctx.setLineDash(isHellZone ? [10, 5] : [8, 6]);
+    ctx.strokeStyle = healColor;
+    ctx.lineWidth = 2.5 + pulse * 1.5;
+    ctx.globalAlpha = 0.75 + pulse * 0.25;
+    ctx.shadowColor = healColor;
+    ctx.shadowBlur = 10;
+    ctx.setLineDash([8, 6]);
     ctx.strokeRect(hz.x, hz.y, hz.width, hz.height);
     ctx.setLineDash([]);
 
+    // Healing crosses in corners
+    const crossSize = 6;
+    const drawCross = (cx: number, cy: number) => {
+      ctx.beginPath();
+      ctx.moveTo(cx - crossSize, cy); ctx.lineTo(cx + crossSize, cy);
+      ctx.moveTo(cx, cy - crossSize); ctx.lineTo(cx, cy + crossSize);
+      ctx.stroke();
+    };
+    drawCross(hz.x + 14, hz.y + 14);
+    drawCross(hz.x + hz.width - 14, hz.y + 14);
+
     // Label
-    ctx.fillStyle = hillColor;
-    ctx.font = '700 12px "Outfit", sans-serif';
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = healColor;
+    ctx.font = '800 12px "Outfit", sans-serif';
     ctx.textAlign = 'center';
-    const labelText = hz.name || (isHellZone ? 'HELL ZONE (-10 HP/s)' : 'HILL ZONE');
+    const labelText = isHeroMode
+      ? 'HERO SANCTUARY (+5 HP/s)'
+      : gameMode === 'king_of_the_hill'
+      ? 'HILL ZONE (+3 HP/s & +1 PT/s)'
+      : hz.name || 'HEALING SANCTUARY (+3 HP/s)';
     ctx.fillText(labelText, hz.x + hz.width / 2, hz.y - 8);
     ctx.restore();
   }
@@ -434,8 +447,8 @@ function drawStickFigure(
     ctx.beginPath();
     ctx.moveTo(-2, -8);
     ctx.lineTo(2, -8);
-    ctx.lineTo(capeW * -player.facing * 0.8 + flutter, 16);
-    ctx.lineTo(capeW * -player.facing * 0.4 + flutter * 0.5, 16);
+    ctx.lineTo(-capeW + flutter, 18);
+    ctx.lineTo(-capeW * 0.4 + flutter * 0.5, 18);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
@@ -893,6 +906,192 @@ function drawSkinEmblem(ctx: CanvasRenderingContext2D, emblem: string, centerY: 
     ctx.shadowBlur = 9;
     ctx.beginPath();
     ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawSkinHeadgear(
+  ctx: CanvasRenderingContext2D,
+  skin: ShopSkin,
+  headY: number,
+  headRadius: number
+) {
+  if (!skin) return;
+  ctx.save();
+
+  const emblem = skin.emblem;
+
+  if (emblem === 'bat') {
+    // Batman Cowl with Pointed Ears and Brow
+    ctx.fillStyle = skin.primaryColor || '#0f172a';
+    ctx.strokeStyle = skin.secondaryColor || '#f59e0b';
+    ctx.lineWidth = 1;
+
+    // Left Bat Ear
+    ctx.beginPath();
+    ctx.moveTo(-headRadius * 0.7, headY - headRadius * 0.4);
+    ctx.lineTo(-headRadius * 0.9, headY - headRadius - 8);
+    ctx.lineTo(-headRadius * 0.2, headY - headRadius * 0.8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Right Bat Ear
+    ctx.beginPath();
+    ctx.moveTo(headRadius * 0.2, headY - headRadius * 0.8);
+    ctx.lineTo(headRadius * 0.9, headY - headRadius - 8);
+    ctx.lineTo(headRadius * 0.7, headY - headRadius * 0.4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // White slit eye visor
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 4;
+    ctx.fillRect(1, headY - 2, 5, 1.8);
+  } else if (emblem === 'super') {
+    // Superman Heroic Spit Curl hair
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(1, headY - headRadius);
+    ctx.quadraticCurveTo(5, headY - headRadius - 3, 4, headY - headRadius + 4);
+    ctx.stroke();
+
+    // Glowing cyan/blue gaze
+    ctx.fillStyle = '#60a5fa';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(3.5, headY - 1, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (emblem === 'flash') {
+    // Flash Golden Lightning Ear Wings
+    ctx.fillStyle = '#facc15';
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 0.8;
+    ctx.shadowColor = '#facc15';
+    ctx.shadowBlur = 6;
+
+    // Lightning bolt antenna on side of head
+    ctx.beginPath();
+    ctx.moveTo(-1, headY - 4);
+    ctx.lineTo(-7, headY - 9);
+    ctx.lineTo(-4, headY - 3);
+    ctx.lineTo(-9, headY + 1);
+    ctx.lineTo(-3, headY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else if (emblem === 'wonder') {
+    // Wonder Woman Amazon Golden Tiara with Ruby Star
+    ctx.fillStyle = '#fbbf24';
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1;
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 6;
+
+    // Curved Tiara Band
+    ctx.beginPath();
+    ctx.moveTo(-headRadius, headY - 2);
+    ctx.quadraticCurveTo(0, headY - headRadius * 0.7, headRadius, headY - 2);
+    ctx.lineTo(headRadius, headY - 5);
+    ctx.lineTo(0, headY - headRadius - 2); // peak
+    ctx.lineTo(-headRadius, headY - 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Central Ruby Star
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(0, headY - headRadius + 1, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (emblem === 'lantern') {
+    // Green Lantern Glowing Emerald Domino Mask
+    ctx.fillStyle = '#047857';
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.2;
+    ctx.shadowColor = '#34d399';
+    ctx.shadowBlur = 8;
+
+    ctx.beginPath();
+    ctx.ellipse(3, headY - 1, 6, 3.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(4, headY - 1, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (emblem === 'aquaman') {
+    // Aquaman Golden Circlet / Trident Brow
+    ctx.fillStyle = '#fbbf24';
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1;
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 6;
+
+    ctx.beginPath();
+    ctx.moveTo(-headRadius, headY - 2);
+    ctx.lineTo(-headRadius * 0.5, headY - headRadius - 1);
+    ctx.lineTo(0, headY - 4);
+    ctx.lineTo(headRadius * 0.5, headY - headRadius - 1);
+    ctx.lineTo(headRadius, headY - 2);
+    ctx.lineTo(0, headY - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else if (emblem === 'cyborg') {
+    // Cyborg Half-Face Titanium Plate & Glowing Red Bionic Eye
+    ctx.fillStyle = '#64748b';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+
+    // Faceplate over side of head
+    ctx.beginPath();
+    ctx.arc(0, headY, headRadius + 0.5, -Math.PI * 0.3, Math.PI * 0.3);
+    ctx.lineTo(0, headY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Glowing Crimson Bionic Optic Lens
+    ctx.fillStyle = '#ef4444';
+    ctx.shadowColor = '#ef4444';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(3.5, headY - 1, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(4, headY - 1.5, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (emblem === 'justice') {
+    // Cosmic Justice Sovereign Starburst Crown
+    ctx.fillStyle = '#fbbf24';
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1;
+    ctx.shadowColor = '#c084fc';
+    ctx.shadowBlur = 10;
+
+    ctx.beginPath();
+    ctx.moveTo(-headRadius * 0.8, headY - 3);
+    ctx.lineTo(-headRadius * 0.4, headY - headRadius - 5);
+    ctx.lineTo(0, headY - 3);
+    ctx.lineTo(headRadius * 0.4, headY - headRadius - 5);
+    ctx.lineTo(headRadius * 0.8, headY - 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#c084fc';
+    ctx.beginPath();
+    ctx.arc(0, headY - headRadius + 1, 2, 0, Math.PI * 2);
     ctx.fill();
   }
 

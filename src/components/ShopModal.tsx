@@ -9,7 +9,7 @@ import {
   SHOES,
 } from '../types/shop';
 import { PlayerConfig, PlayerId } from '../types/game';
-import { saveWallet } from '../services/shopStorage';
+import { saveWallet, claimYoutubeRecharge } from '../services/shopStorage';
 import { sounds } from '../audio/soundEngine';
 import {
   ShoppingBag,
@@ -21,7 +21,10 @@ import {
   Coins,
   Gem,
   Info,
+  Gift,
+  ExternalLink,
 } from 'lucide-react';
+import { StickmanGift, StickmanRuler } from './StickmanIcons';
 
 interface ShopModalProps {
   isOpen: boolean;
@@ -678,6 +681,17 @@ export const ShopModal: React.FC<ShopModalProps> = ({
 
   const humanPlayer = playerConfigs.find((p) => p.type === 'human') || playerConfigs[0];
 
+  const handleClaimFreeYoutubeRecharge = () => {
+    // Open YouTube channel in new tab safely
+    window.open('https://www.youtube.com/@The-Night-Nix/videos', '_blank', 'noopener,noreferrer');
+
+    // Grant free balance bonus
+    const result = claimYoutubeRecharge();
+    onUpdateWallet(result.newWallet);
+    sounds.playPowerUp();
+    showFeedback('تم شحن رصيد مجاني بنجاح (+1000 نقود و +100 جوهرة)! تفضل بمشاهدة فيديوهات الأكواد على القناة!', 'success');
+  };
+
   // ================= PURCHASE / EQUIP HANDLERS =================
   const handleBuyHat = (hat: ShopHat) => {
     if (hat.currency === 'coins') {
@@ -849,6 +863,52 @@ export const ShopModal: React.FC<ShopModalProps> = ({
             {feedbackMsg.text}
           </div>
         )}
+
+        {/* FREE BALANCE RECHARGE VIA YOUTUBE PROMO BANNER */}
+        <div className="shrink-0 px-6 py-2.5 bg-gradient-to-r from-red-950/80 via-slate-900 to-amber-950/80 border-b border-red-500/40 flex flex-col md:flex-row items-center justify-between gap-3 shadow-inner">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-red-600/50 animate-pulse">
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-black text-white">
+                  اشحن رصيد مجاني عبر الدخول الى رابط قناتي على اليوتيوب
+                </span>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse flex items-center gap-1">
+                  <StickmanGift className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  <span>هدية مجانية</span>
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                ادخل إلى القناة لمشاهدة فيديوهات لأكواد مجانية إضافية واحصل فوراً على <span className="text-amber-300 font-bold">+1000 نقود</span> و <span className="text-cyan-300 font-bold">+100 جوهرة</span>!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
+            <button
+              onClick={handleClaimFreeYoutubeRecharge}
+              className="flex-1 md:flex-initial px-4 py-2.5 bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-xs rounded-xl shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Gift className="w-4 h-4" />
+              <span>اشحن رصيد مجاني الآن</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+            <a
+              href="https://www.youtube.com/@The-Night-Nix/videos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+              title="زيارة القناة مباشرة"
+            >
+              <span>زيارة القناة</span>
+              <ExternalLink className="w-3 h-3 text-slate-400" />
+            </a>
+          </div>
+        </div>
 
         {/* ============================================================== */}
         {/* TABS SELECTOR (HATS, FULL SKINS, SHOES)                        */}
@@ -1046,7 +1106,14 @@ export const ShopModal: React.FC<ShopModalProps> = ({
                     }`}
                     title="مقارنة الطول مع الشخصية بدون سكين"
                   >
-                    {showHeightCompare ? '✓ عرض مقارنة الطول نشط' : '📐 مقارنة الطول مع الأصل'}
+                    {showHeightCompare ? (
+                      '✓ عرض مقارنة الطول نشط'
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <StickmanRuler className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span>مقارنة الطول مع الأصل</span>
+                      </span>
+                    )}
                   </button>
 
                   {wallet.equippedSkin && (

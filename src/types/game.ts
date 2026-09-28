@@ -16,7 +16,8 @@ export type GameMode =
   | 'weapon_roulette'
   | 'chaos'
   | 'team_deathmatch'
-  | 'infection';
+  | 'infection'
+  | 'the_hero';
 
 export type RandomEventType = 'none' | 'gravity' | 'wind' | 'earthquake' | 'fire' | 'zoom';
 

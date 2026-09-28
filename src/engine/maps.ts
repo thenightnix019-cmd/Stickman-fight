@@ -4,7 +4,7 @@ export const MAPS: ArenaMap[] = [
   {
     id: 'grand_battle_royale',
     name: 'Apex Warzone',
-    subtitle: 'Massive 2000px multi-level warzone for 6 players with shrinking storm & axe drops',
+    subtitle: 'Massive 2000px warzone with Command Bridge Healing Sanctuary (+3 HP/s) & shrinking storm',
     width: 2000,
     height: 1050,
     spawnPoints: [
@@ -15,6 +15,14 @@ export const MAPS: ArenaMap[] = [
       { x: 820, y: 440 },
       { x: 1180, y: 440 },
     ],
+    hillZone: {
+      x: 840,
+      y: 530,
+      width: 320,
+      height: 140,
+      name: 'HEALING SANCTUARY (+3 HP/s)',
+      color: '#10b981',
+    },
     theme: {
       bgGradient: ['#0f172a', '#020617'],
       gridColor: 'rgba(56, 189, 248, 0.12)',
@@ -51,7 +59,7 @@ export const MAPS: ArenaMap[] = [
   {
     id: 'foundry',
     name: 'The Foundry',
-    subtitle: 'Industrial multi-tier battleground with central Hill Zone (-5 HP/s)',
+    subtitle: 'Industrial multi-tier battleground with central Healing Zone (+3 HP/s)',
     width: 1400,
     height: 750,
     spawnPoints: [
@@ -67,9 +75,8 @@ export const MAPS: ArenaMap[] = [
       y: 220,
       width: 280,
       height: 130,
-      name: 'HILL ZONE (-5 HP/s)',
-      dps: 5,
-      color: '#f59e0b',
+      name: 'HEALING ZONE (+3 HP/s)',
+      color: '#10b981',
     },
     theme: {
       bgGradient: ['#0f172a', '#020617'],
@@ -96,7 +103,7 @@ export const MAPS: ArenaMap[] = [
   {
     id: 'rooftop',
     name: 'Neon Skyline',
-    subtitle: 'Dual skyscrapers with central Hell Zone hazard (-10 HP/s)',
+    subtitle: 'Dual skyscrapers with central Rooftop Sanctuary (+3 HP/s)',
     width: 1400,
     height: 750,
     spawnPoints: [
@@ -112,9 +119,8 @@ export const MAPS: ArenaMap[] = [
       y: 410,
       width: 240,
       height: 110,
-      name: 'HELL ZONE (-10 HP/s)',
-      dps: 10,
-      color: '#ef4444',
+      name: 'ROOFTOP SANCTUARY (+3 HP/s)',
+      color: '#10b981',
     },
     theme: {
       bgGradient: ['#18181b', '#09090b'],
@@ -141,7 +147,7 @@ export const MAPS: ArenaMap[] = [
   {
     id: 'cyber',
     name: 'Cyber Colosseum',
-    subtitle: 'Stepped fighting arena with central Hill Zone (-5 HP/s)',
+    subtitle: 'Stepped fighting arena with central Healing Zone (+3 HP/s)',
     width: 1400,
     height: 750,
     spawnPoints: [
@@ -157,9 +163,8 @@ export const MAPS: ArenaMap[] = [
       y: 470,
       width: 280,
       height: 110,
-      name: 'HILL ZONE (-5 HP/s)',
-      dps: 5,
-      color: '#f59e0b',
+      name: 'HEALING ZONE (+3 HP/s)',
+      color: '#10b981',
     },
     theme: {
       bgGradient: ['#042f2e', '#021a19'],

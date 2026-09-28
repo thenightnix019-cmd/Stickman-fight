@@ -3,6 +3,7 @@ import { PlayerWallet } from '../types/shop';
 import { redeemPromoCode } from '../services/shopStorage';
 import { sounds } from '../audio/soundEngine';
 import { KeyRound, X, Sparkles, CheckCircle, AlertCircle, Coins, Gem } from 'lucide-react';
+import { StickmanGift } from './StickmanIcons';
 
 interface RedeemCodeModalProps {
   isOpen: boolean;
@@ -134,6 +135,31 @@ export const RedeemCodeModal: React.FC<RedeemCodeModalProps> = ({
             <span>تفعيل الكود</span>
           </button>
         </form>
+
+        {/* YouTube Channel Promo Banner */}
+        <div className="mt-5 pt-4 border-t border-slate-800 flex flex-col items-center">
+          <a
+            href="https://www.youtube.com/@The-Night-Nix/videos"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-3 rounded-2xl bg-gradient-to-r from-rose-950/60 via-red-900/30 to-slate-900 border border-red-500/40 hover:border-red-400 hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 text-white group shadow-md"
+          >
+            <div className="w-7 h-7 rounded-xl bg-red-600 flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            <div className="text-right flex-1">
+              <div className="text-xs font-black text-rose-300 group-hover:text-rose-200 flex items-center justify-end gap-1.5">
+                <span>شاهد فيديوهات لأكواد مجانية جديدة</span>
+                <StickmanGift className="w-4 h-4 text-amber-400 shrink-0" />
+              </div>
+              <div className="text-[10px] text-slate-400 font-mono">
+                youtube.com/@The-Night-Nix/videos
+              </div>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   );

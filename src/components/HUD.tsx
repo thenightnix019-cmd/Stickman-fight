@@ -22,6 +22,84 @@ import {
 } from 'lucide-react';
 import { sounds } from '../audio/soundEngine';
 
+/* Stickman Silhouette Vector Weapons (Zero Emojis!) */
+const StickmanWeaponIcon: React.FC<{ weapon: string; className?: string }> = ({
+  weapon,
+  className = 'w-3.5 h-3.5 inline-block shrink-0',
+}) => {
+  switch (weapon) {
+    case 'sword':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="6" cy="6" r="2.5" />
+          <line x1="6" y1="8.5" x2="6" y2="15" />
+          <line x1="6" y1="11" x2="14" y2="7" />
+          <line x1="14" y1="7" x2="22" y2="3" strokeWidth="2.5" stroke="#f8fafc" />
+          <polyline points="3,21 6,15 9,21" />
+        </svg>
+      );
+    case 'axe':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="7" cy="6" r="2.5" />
+          <line x1="7" y1="8.5" x2="7" y2="15" />
+          <line x1="7" y1="11" x2="15" y2="8" />
+          <line x1="13" y1="13" x2="19" y2="3" strokeWidth="2.5" stroke="#fbbf24" />
+          <path d="M 17 4 Q 23 2 21 8 Q 18 10 16 7 Z" fill="#cbd5e1" stroke="#f8fafc" strokeWidth="1" />
+          <polyline points="4,21 7,15 10,21" />
+        </svg>
+      );
+    case 'gun':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="6" cy="6" r="2.5" />
+          <line x1="6" y1="8.5" x2="6" y2="15" />
+          <line x1="6" y1="10" x2="15" y2="10" />
+          <rect x="14" y="8" width="7" height="4" rx="1" fill="#38bdf8" stroke="none" />
+          <polyline points="3,21 6,15 9,21" />
+        </svg>
+      );
+    case 'rocket':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="6" cy="6" r="2.5" />
+          <line x1="6" y1="8.5" x2="6" y2="15" />
+          <line x1="6" y1="10" x2="13" y2="9" />
+          <rect x="11" y="7" width="10" height="5" rx="2" fill="#ef4444" stroke="none" />
+          <polyline points="3,21 6,15 9,21" />
+        </svg>
+      );
+    case 'rope':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="6" cy="6" r="2.5" />
+          <line x1="6" y1="8.5" x2="6" y2="15" />
+          <path d="M 6 11 Q 12 6 18 11" stroke="#a855f7" />
+          <polyline points="3,21 6,15 9,21" />
+        </svg>
+      );
+    case 'magnet':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="6" cy="6" r="2.5" />
+          <line x1="6" y1="8.5" x2="6" y2="15" />
+          <path d="M 14 8 A 4 4 0 0 1 14 16" stroke="#06b6d4" strokeWidth="2.5" />
+          <polyline points="3,21 6,15 9,21" />
+        </svg>
+      );
+    case 'fists':
+    default:
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+          <circle cx="8" cy="6" r="2.5" />
+          <line x1="8" y1="8.5" x2="8" y2="15" />
+          <line x1="8" y1="10" x2="16" y2="10" strokeWidth="2.5" stroke="#f59e0b" />
+          <polyline points="5,21 8,15 11,21" />
+        </svg>
+      );
+  }
+};
+
 interface HUDProps {
   players: PlayerState[];
   playerConfigs: PlayerConfig[];
@@ -89,6 +167,7 @@ export const HUD: React.FC<HUDProps> = ({
     chaos: 'Chaos Mode',
     team_deathmatch: 'Team Deathmatch',
     infection: 'Infection Mode',
+    the_hero: 'The Hero (300 HP · Axes Only)',
   };
 
   // Team Deathmatch calculations
@@ -305,17 +384,17 @@ export const HUD: React.FC<HUDProps> = ({
           const st = players.find((p) => p.id === cfg.id);
           const isAlive = st?.isAlive ?? false;
           const hp = Math.max(0, Math.round(st?.hp ?? 0));
-          const maxHp = st?.maxHp ?? 100;
+          const maxHp = st?.maxHp ?? (gameMode === 'the_hero' ? 300 : 200);
           const hpPercent = (hp / maxHp) * 100;
 
-          const weaponIcons: Record<string, string> = {
-            fists: '👊 Fists',
-            sword: '🗡️ Sword',
-            axe: '🪓 Battleaxe',
-            gun: '🔫 Blaster',
-            rocket: '🚀 Rocket',
-            rope: '🪝 Rope',
-            magnet: '🧲 Magnet',
+          const weaponLabels: Record<string, string> = {
+            fists: 'Fists',
+            sword: 'Sword',
+            axe: 'Battleaxe',
+            gun: 'Blaster',
+            rocket: 'Rocket',
+            rope: 'Grapple',
+            magnet: 'Magnet',
           };
 
           return (
@@ -323,7 +402,9 @@ export const HUD: React.FC<HUDProps> = ({
               key={cfg.id}
               className={`p-3 rounded-xl border backdrop-blur-md transition-all ${
                 isAlive
-                  ? gameMode === 'team_deathmatch'
+                  ? gameMode === 'the_hero'
+                    ? 'bg-slate-900/90 border-rose-500/40 shadow-lg shadow-rose-950/30'
+                    : gameMode === 'team_deathmatch'
                     ? cfg.team === 'red'
                       ? 'bg-slate-900/90 border-red-500/40 shadow-lg shadow-red-950/30'
                       : 'bg-slate-900/90 border-blue-500/40 shadow-lg shadow-blue-950/30'
@@ -348,6 +429,11 @@ export const HUD: React.FC<HUDProps> = ({
                       ? `CPU (${(cfg.aiDifficulty || 'normal').toUpperCase()})`
                       : 'P' + cfg.id}
                   </span>
+                  {gameMode === 'the_hero' && (
+                    <span className="text-[9px] font-black px-1.5 py-0.2 rounded uppercase bg-rose-500/20 text-rose-300">
+                      HERO
+                    </span>
+                  )}
                   {gameMode === 'team_deathmatch' && (
                     <span
                       className={`text-[9px] font-black px-1.5 py-0.2 rounded uppercase ${
@@ -377,6 +463,12 @@ export const HUD: React.FC<HUDProps> = ({
               </div>
 
               {/* Health Bar */}
+              <div className="flex items-center justify-between text-[10px] font-mono mb-1">
+                <span className="text-slate-400">HP</span>
+                <span className={`font-bold ${hpPercent > 50 ? 'text-emerald-400' : hpPercent > 25 ? 'text-amber-400' : 'text-rose-400'}`}>
+                  {hp}/{maxHp}
+                </span>
+              </div>
               <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden mb-1.5 border border-slate-800">
                 <div
                   className="h-full transition-all duration-150"
@@ -392,25 +484,35 @@ export const HUD: React.FC<HUDProps> = ({
                 />
               </div>
 
-              {/* Status Info (Clean Unboxed Text) */}
+              {/* Status Info (Clean Unboxed Text with Stickman Icons) */}
               <div className="flex items-center justify-between text-[11px] text-slate-300">
-                <span className="font-medium">
-                  {isAlive
-                    ? gameMode === 'infection'
-                      ? st?.isInfected
-                        ? `🧟 ضربة التحويل: ${
-                            (st?.attackCooldown || 0) > 0
-                              ? (st?.attackCooldown || 0).toFixed(1) + 's'
-                              : 'جاهزة ⚡'
-                          }`
-                        : '🛡️ تفادي وحركة (بدون أسلحة)'
-                      : `${weaponIcons[st?.weapon || 'fists']}${
-                          st?.weapon !== 'fists' ? ` (${st?.ammo})` : ''
-                        }`
-                    : 'ELIMINATED'}
-                </span>
+                <div className="flex items-center gap-1.5 font-medium truncate">
+                  {isAlive ? (
+                    gameMode === 'infection' ? (
+                      st?.isInfected ? (
+                        <span className="text-emerald-400 text-[10px]">
+                          ضربة التحويل: {(st?.attackCooldown || 0) > 0 ? (st?.attackCooldown || 0).toFixed(1) + 's' : 'جاهزة ✦'}
+                        </span>
+                      ) : (
+                        <span className="text-sky-400 text-[10px]">
+                          مراوغة وقفز (بدون أسلحة)
+                        </span>
+                      )
+                    ) : (
+                      <>
+                        <StickmanWeaponIcon weapon={st?.weapon || 'fists'} className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>
+                          {weaponLabels[st?.weapon || 'fists']}
+                          {st?.weapon !== 'fists' ? ` (${st?.ammo})` : ''}
+                        </span>
+                      </>
+                    )
+                  ) : (
+                    <span className="text-rose-400">ELIMINATED</span>
+                  )}
+                </div>
 
-                <span className="font-mono tabular-nums text-slate-400">
+                <span className="font-mono tabular-nums text-slate-400 text-xs">
                   {isAlive ? `${hp} HP` : 'K.O.'}
                 </span>
               </div>
@@ -419,10 +521,11 @@ export const HUD: React.FC<HUDProps> = ({
               {st?.activePowerUp && isAlive && (
                 <div className="mt-1 text-[10px] font-semibold text-sky-400 flex items-center justify-between">
                   <span>
-                    {st.activePowerUp === 'giant' && '⭐ GIANT'}
-                    {st.activePowerUp === 'speed' && '⚡ SPEED'}
-                    {st.activePowerUp === 'shield' && `🛡️ SHIELD (${Math.round(st.shieldHp)})`}
-                    {st.activePowerUp === 'combo' && '🔥 2X COMBO'}
+                    {st.activePowerUp === 'giant' && '✦ GIANT'}
+                    {st.activePowerUp === 'speed' && '✦ SPEED'}
+                    {st.activePowerUp === 'shield' && `✦ SHIELD (${Math.round(st.shieldHp)})`}
+                    {st.activePowerUp === 'combo' && '✦ 2X COMBO'}
+                    {st.activePowerUp === 'jetpack' && '✦ JETPACK'}
                   </span>
                   <span className="font-mono tabular-nums">
                     {Math.ceil(st.powerUpTimeRemaining)}s
