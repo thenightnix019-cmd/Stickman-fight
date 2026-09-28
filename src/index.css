@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/* Custom Neon Scrollbar for Stick Arena ("شريط نهبط بيه") */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.75);
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 50%, #6366f1 100%);
+  border-radius: 9999px;
+  border: 2px solid rgba(15, 23, 42, 0.85);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 50%, #818cf8 100%);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.9);
+}
+
+/* Pulsing Neon Lights ("اضاءة تزول وتعود") */
+@keyframes neonBreatheCyan {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(0.92);
+    filter: blur(80px);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.1);
+    filter: blur(50px);
+  }
+}
+
+@keyframes neonBreatheAmber {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.92);
+    filter: blur(85px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.12);
+    filter: blur(55px);
+  }
+}
+
+@keyframes neonBreatheEmerald {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(0.9);
+    filter: blur(80px);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.1);
+    filter: blur(50px);
+  }
+}
+
+@keyframes neonBreathePurple {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(0.92);
+    filter: blur(85px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.15);
+    filter: blur(55px);
+  }
+}
+
+@keyframes stickmanPulseGlow {
+  0%, 100% {
+    opacity: 0.25;
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+  50% {
+    opacity: 0.92;
+    filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 35px currentColor);
+  }
+}
+
+@keyframes stickmanFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+.animate-neon-cyan {
+  animation: neonBreatheCyan 4.5s ease-in-out infinite alternate;
+}
+
+.animate-neon-amber {
+  animation: neonBreatheAmber 5s ease-in-out infinite alternate 1s;
+}
+
+.animate-neon-emerald {
+  animation: neonBreatheEmerald 4s ease-in-out infinite alternate 0.5s;
+}
+
+.animate-neon-purple {
+  animation: neonBreathePurple 5.5s ease-in-out infinite alternate 1.5s;
+}
+
+.animate-stickman-glow {
+  animation: stickmanPulseGlow 4s ease-in-out infinite alternate;
+}
+
+.animate-stickman-float {
+  animation: stickmanFloat 6s ease-in-out infinite;
+}
+
